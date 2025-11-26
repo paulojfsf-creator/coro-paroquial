@@ -699,52 +699,64 @@ function getFeastForDate(date) {
     titleEl.innerHTML = icon + ' Coro Paroquial São João Batista de Rio Caldo';
   }
 
-  document.querySelectorAll('.tabs button').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const tabId = btn.getAttribute('data-tab');
-      document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      btn.classList.add('active');
-      document.getElementById(tabId).classList.add('active');
+  // ==== Inicialização da navegação e tema (precisa do DOM) ====
+  document.addEventListener('DOMContentLoaded', function() {
+    // Navegação entre abas
+    document.querySelectorAll('.tabs button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tabId = btn.getAttribute('data-tab');
+        document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(tabId).classList.add('active');
+      });
     });
-  });
 
-  const themeToggleBtn = document.getElementById('themeToggleBtn');
-  function getAutoTheme() {
-    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const hour = new Date().getHours();
-    const isNight = (hour >= 20 || hour < 7);
-    return (prefersDark || isNight) ? 'dark' : 'light';
-  }
-  function applyThemeFromStorage() {
-    const stored = localStorage.getItem('coroTheme');
-    const effective = stored || getAutoTheme();
-    if (effective === 'dark') {
-      document.documentElement.classList.add('dark');
-      themeToggleBtn.innerHTML = '☀ Modo claro';
-    } else {
-      document.documentElement.classList.remove('dark');
-      themeToggleBtn.innerHTML = '🌙 Modo escuro';
+    // Sistema de tema claro/escuro
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    if (!themeToggleBtn) return;
+    
+    function getAutoTheme() {
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const hour = new Date().getHours();
+      const isNight = (hour >= 20 || hour < 7);
+      return (prefersDark || isNight) ? 'dark' : 'light';
     }
-  }
-  themeToggleBtn.addEventListener('click', () => {
-    const isDark = !document.documentElement.classList.contains('dark');
-    document.documentElement.classList.toggle('dark', isDark);
-    localStorage.setItem('coroTheme', isDark ? 'dark' : 'light');
+    function applyThemeFromStorage() {
+      const stored = localStorage.getItem('coroTheme');
+      const effective = stored || getAutoTheme();
+      if (effective === 'dark') {
+        document.documentElement.classList.add('dark');
+        themeToggleBtn.innerHTML = '☀ Modo claro';
+      } else {
+        document.documentElement.classList.remove('dark');
+        themeToggleBtn.innerHTML = '🌙 Modo escuro';
+      }
+    }
+    themeToggleBtn.addEventListener('click', () => {
+      const isDark = !document.documentElement.classList.contains('dark');
+      document.documentElement.classList.toggle('dark', isDark);
+      localStorage.setItem('coroTheme', isDark ? 'dark' : 'light');
+      applyThemeFromStorage();
+    });
     applyThemeFromStorage();
   });
-  applyThemeFromStorage();
 
   // ---- Catálogo (Google Sheets + CSV manual) ----
-  const csvFileInput = document.getElementById('csvFile');
-  const loadCsvBtn = document.getElementById('loadCsvBtn');
-  const csvError = document.getElementById('csvError');
-  const songsTableContainer = document.getElementById('songsTableContainer');
-  const filterAuthor = document.getElementById('filterAuthor');
-  const filterTheme = document.getElementById('filterTheme');
-  const songSearch = document.getElementById('songSearch');
-
   const GOOGLE_SHEETS_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTv7BD5eoTpio0s2Vjb6YCuZNmjCyG_leoWxl6v-IkIMV-LiJZNmCwhqA9j68IESZQJiU-H3ri3_flR/pub?gid=1808635095&single=true&output=csv";
+  
+  // Variáveis serão inicializadas no DOMContentLoaded
+  let csvFileInput, loadCsvBtn, csvError, songsTableContainer, filterAuthor, filterTheme, songSearch;
+  
+  function initCatalogElements() {
+    csvFileInput = document.getElementById('csvFile');
+    loadCsvBtn = document.getElementById('loadCsvBtn');
+    csvError = document.getElementById('csvError');
+    songsTableContainer = document.getElementById('songsTableContainer');
+    filterAuthor = document.getElementById('filterAuthor');
+    filterTheme = document.getElementById('filterTheme');
+    songSearch = document.getElementById('songSearch');
+  }
 
   function parseCsvResults(data) {
     songs = data || [];
@@ -754,6 +766,10 @@ function getFeastForDate(date) {
   }
 
   function loadCsvFromGoogleSheets(done) {
+    if (!songsTableContainer) {
+      console.warn('songsTableContainer não encontrado');
+      return;
+    }
     Papa.parse(GOOGLE_SHEETS_CSV, {
       download: true,
       header: true,
@@ -778,14 +794,15 @@ function getFeastForDate(date) {
   }
 
   function renderSongsTable() {
+    if (!songsTableContainer) return;
     if (!songs.length) {
       songsTableContainer.classList.add('muted');
       songsTableContainer.innerHTML = 'Sem dados de catálogo para mostrar.';
       return;
     }
-    const authorVal = filterAuthor.value;
-    const themeVal = filterTheme.value;
-    const searchVal = (songSearch.value || '').toLowerCase();
+    const authorVal = filterAuthor ? filterAuthor.value : '';
+    const themeVal = filterTheme ? filterTheme.value : '';
+    const searchVal = songSearch ? (songSearch.value || '').toLowerCase() : '';
     const filtered = songs.filter(song => {
       const autor = song.Autor || song.autor || '';
       const tema = song.Tema || song.tema || '';
@@ -833,36 +850,41 @@ function getFeastForDate(date) {
     filterTheme.innerHTML = '<option value="">Todos</option>' + Array.from(temas).sort().map(t => '<option>' + t + '</option>').join('');
   }
 
-  loadCsvBtn.addEventListener('click', () => {
-    csvError.style.display = 'none';
-    if (!csvFileInput.files || !csvFileInput.files.length) {
-      csvError.innerHTML = 'Escolhe um ficheiro CSV.';
-      csvError.style.display = 'block';
-      return;
-    }
-    const file = csvFileInput.files[0];
-    Papa.parse(file, {
-      header: true,
-      skipEmptyLines: "greedy",
-      complete: (results) => {
-        try {
-          parseCsvResults(results.data);
-          showToast('CSV carregado com sucesso.', 'success');
-        } catch (err) {
-          csvError.innerHTML = 'Erro ao processar o CSV.';
+  function initCatalogListeners() {
+    if (!loadCsvBtn || !filterAuthor || !filterTheme || !songSearch) return;
+    
+    loadCsvBtn.addEventListener('click', () => {
+      if (!csvError || !csvFileInput) return;
+      csvError.style.display = 'none';
+      if (!csvFileInput.files || !csvFileInput.files.length) {
+        csvError.innerHTML = 'Escolhe um ficheiro CSV.';
+        csvError.style.display = 'block';
+        return;
+      }
+      const file = csvFileInput.files[0];
+      Papa.parse(file, {
+        header: true,
+        skipEmptyLines: "greedy",
+        complete: (results) => {
+          try {
+            parseCsvResults(results.data);
+            showToast('CSV carregado com sucesso.', 'success');
+          } catch (err) {
+            csvError.innerHTML = 'Erro ao processar o CSV.';
+            csvError.style.display = 'block';
+          }
+        },
+        error: () => {
+          csvError.innerHTML = 'Erro ao ler o ficheiro CSV.';
           csvError.style.display = 'block';
         }
-      },
-      error: () => {
-        csvError.innerHTML = 'Erro ao ler o ficheiro CSV.';
-        csvError.style.display = 'block';
-      }
+      });
     });
-  });
 
-  filterAuthor.addEventListener('change', renderSongsTable);
-  filterTheme.addEventListener('change', renderSongsTable);
-  songSearch.addEventListener('input', renderSongsTable);
+    filterAuthor.addEventListener('change', renderSongsTable);
+    filterTheme.addEventListener('change', renderSongsTable);
+    songSearch.addEventListener('input', renderSongsTable);
+  }
 
   function populateSongDropdowns() {
     const titles = Array.from(new Set(songs.map(s => s.Título || s.Titulo || s.titulo).filter(Boolean))).sort();
@@ -2344,6 +2366,10 @@ function setupProgramButtons() {
 }
 
 function init() {
+    // Inicializar elementos do catálogo
+    initCatalogElements();
+    initCatalogListeners();
+    
     loadHistory();
     renderHistory();
     loadCsvFromGoogleSheets();
