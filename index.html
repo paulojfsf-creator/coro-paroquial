@@ -10,6 +10,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Lato:wght@400;700&family=Noto+Serif:wght@400;600&display=swap" rel="stylesheet">
 
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://unpkg.com/docx@8.5.0/build/index.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
   <style>
     :root {
@@ -496,7 +499,7 @@
     @media print {
       @page {
         size: A4 portrait;
-        margin: 1cm 1cm 1cm 2cm;
+        margin: 2cm 1cm 1cm 2cm;
       }
       body { background: #ffffff !important; }
       header,
@@ -1105,8 +1108,8 @@ body.lit-gold {
   <div class="card">
     
     <nav class="tabs">
-      <button type="button" class="active" data-tab="tab-dashboard"><span class="dot"></span> Página inicial</button>
-      <button type="button" data-tab="tab-programa"><span class="dot"></span> Programa</button>
+    <nav class="tabs">
+      <button type="button" class="active" data-tab="tab-programa"><span class="dot"></span> Programa</button>
       <button type="button" data-tab="tab-catalogo"><span class="dot"></span> Catálogo</button>
       <button type="button" data-tab="tab-historico"><span class="dot"></span> Histórico</button>
       <button type="button" data-tab="tab-ensaios"><span class="dot"></span> Ensaios</button>
@@ -1114,36 +1117,7 @@ body.lit-gold {
 
 
 
-    <section id="tab-dashboard" class="tab active">
-      <h2>Página inicial</h2>
-      <section id="dashboard" class="card-grid" aria-label="Resumo rápido">
-        <div class="card dash-card">
-          <h3>Celebração do dia</h3>
-          <p id="dashLitTitle" class="strong small muted">—</p>
-          <p class="tiny"><span id="dashLitSeason">—</span> · <span id="dashLitCycle">Ano —</span></p>
-        </div>
-        <div class="card dash-card">
-          <h3>Programa</h3>
-          <p class="small"><span id="dashFilledParts">0</span> de <span id="dashTotalParts">0</span> partes com cânticos.</p>
-        </div>
-        <div class="card dash-card">
-          <h3>Histórico</h3>
-          <p class="small"><span id="dashUsageCount">0</span> registos de cânticos usados.</p>
-        </div>
-        <div class="card dash-card">
-          <h3>Atalhos</h3>
-          <p class="tiny">Vai rapidamente para:</p>
-          <div class="dash-actions">
-            <button type="button" class="btn secondary tiny" data-go-tab="tab-programa">Programa</button>
-            <button type="button" class="btn secondary tiny" data-go-tab="tab-catalogo">Catálogo</button>
-            <button type="button" class="btn secondary tiny" data-go-tab="tab-ensaios">Ensaios</button>
-            <button type="button" class="btn secondary tiny" data-go-tab="tab-historico">Histórico</button>
-          </div>
-        </div>
-      </section>
-    </section>
-
-    <section id="tab-programa" class="tab">
+    <section id="tab-programa" class="tab active">
       <form id="programForm">
         <h2>Programa litúrgico</h2>
         <p class="small">Escolhe a data e os cânticos. O tempo litúrgico, o ciclo e o número do domingo são calculados automaticamente.</p>
@@ -1344,7 +1318,9 @@ body.lit-gold {
     <h3>Pré-visualização do folheto</h3>
   </div>
   <div class="col text-right">
-    <button type="button" class="btn secondary small" id="exportPdfBtn">Exportar folheto em PDF</button>
+    <button type="button" class="btn secondary small" id="exportPdfBtn">📄 Imprimir (navegador)</button>
+    <button type="button" class="btn primary small" id="exportDocxBtn">📥 Exportar DOCX</button>
+    <button type="button" class="btn primary small" id="exportPdfJsBtn">📥 Exportar PDF</button>
   </div>
 </div>
 <div id="previewContainer">
@@ -1617,5 +1593,6 @@ body.lit-gold {
 </div>
 
 <script src="scripts/scripts.js"></script>
+<script src="scripts/export-functions.js"></script>
 </body>
 </html>

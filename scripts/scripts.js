@@ -2378,29 +2378,17 @@ function init() {
     setupProgramButtons();
 
 
-    // Dashboard inicial
-    updateDashboard();
+    // Dashboard removida - não é mais necessário
+    // updateDashboard();
     if (dateInput) {
       dateInput.addEventListener('change', () => {
         updatePreview();
-        updateDashboard();
+        // updateDashboard();
       });
     }
 
-    // Atalhos de dashboard para tabs
-    document.querySelectorAll('[data-go-tab]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const tabId = btn.getAttribute('data-go-tab');
-        const tabBtn = document.querySelector('.tabs button[data-tab="' + tabId + '"]');
-        const tabEl = document.getElementById(tabId);
-        if (tabBtn && tabEl) {
-          document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
-          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-          tabBtn.classList.add('active');
-          tabEl.classList.add('active');
-        }
-      });
-    });
+    // Atalhos de dashboard removidos - não são mais necessários
+    // document.querySelectorAll('[data-go-tab]').forEach(btn => { ... });
 
     // Botão de exportar folheto em PDF
     const exportPdfBtn = document.getElementById('exportPdfBtn');
