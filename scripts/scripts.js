@@ -1105,7 +1105,6 @@ function loadHistory() {
     }
     let html = '<table><thead><tr><th>Data</th><th>Título</th><th>Tempo / Ciclo</th><th>Ações</th></tr></thead><tbody>';
     history.slice().sort((a, b) => (b.date || '').localeCompare(a.date || '')).forEach((rec, idx) => {
-      // Encontrar índice original no array não-ordenado
       const originalIdx = history.findIndex(h => h.date === rec.date && h.title === rec.title);
       html += '<tr>' +
         '<td>' + (rec.date || '—') + '</td>' +
@@ -1121,7 +1120,6 @@ function loadHistory() {
     container.classList.remove('muted');
     container.innerHTML = html;
 
-    // Listener para carregar
     container.querySelectorAll('button[data-hist-idx]').forEach(btn => {
       btn.addEventListener('click', () => {
         const idx = parseInt(btn.getAttribute('data-hist-idx'), 10);
@@ -1129,7 +1127,6 @@ function loadHistory() {
       });
     });
 
-    // Listener para eliminar
     container.querySelectorAll('button[data-hist-del]').forEach(btn => {
       btn.addEventListener('click', () => {
         const idx = parseInt(btn.getAttribute('data-hist-del'), 10);
@@ -1251,7 +1248,7 @@ function updateDashboard() {
     const dashUsageCount = document.getElementById('dashUsageCount');
 
     if (dashLitTitle) {
-      dashLitTitle.textContent = buildDisplayLiturgicalTitle(d, info);
+      dashLitTitle.textContent = buildDisplayLiturgicalTitle(info);
     }
     if (dashLitSeason) {
       dashLitSeason.textContent = info.season || '';
@@ -2349,7 +2346,7 @@ function init() {
     loadCsvFromGoogleSheets();
     populateSongDropdowns();
     
-    // Inicializar data com hoje se estiver vazia
+    // Inicializar data com hoje se vazia
     const dateInput = document.getElementById('date');
     if (dateInput && !dateInput.value) {
       const today = new Date();
@@ -2358,7 +2355,6 @@ function init() {
       const day = String(today.getDate()).padStart(2, '0');
       dateInput.value = `${year}-${month}-${day}`;
       
-      // Atualizar informação litúrgica
       const info = getLiturgicalInfo(today);
       const cycleDisplay = document.getElementById('cycleDisplay');
       if (cycleDisplay) {
@@ -2377,18 +2373,11 @@ function init() {
     refreshRehearsalPrograms();
     setupProgramButtons();
 
-
-    // Dashboard removida - não é mais necessário
-    // updateDashboard();
     if (dateInput) {
       dateInput.addEventListener('change', () => {
         updatePreview();
-        // updateDashboard();
       });
     }
-
-    // Atalhos de dashboard removidos - não são mais necessários
-    // document.querySelectorAll('[data-go-tab]').forEach(btn => { ... });
 
     // Botão de exportar folheto em PDF
     const exportPdfBtn = document.getElementById('exportPdfBtn');

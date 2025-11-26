@@ -162,7 +162,6 @@
       position: sticky;
       top: 0;
       z-index: 999;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
     }
     .tabs button {
       border: none;
@@ -1108,6 +1107,7 @@ body.lit-gold {
   <div class="card">
     
     <nav class="tabs">
+      <button type="button" class="active" data-tab="tab-dashboard"><span class="dot"></span> Página inicial</button>
     <nav class="tabs">
       <button type="button" class="active" data-tab="tab-programa"><span class="dot"></span> Programa</button>
       <button type="button" data-tab="tab-catalogo"><span class="dot"></span> Catálogo</button>
@@ -1118,7 +1118,6 @@ body.lit-gold {
 
 
     <section id="tab-programa" class="tab active">
-      <form id="programForm">
         <h2>Programa litúrgico</h2>
         <p class="small">Escolhe a data e os cânticos. O tempo litúrgico, o ciclo e o número do domingo são calculados automaticamente.</p>
 
@@ -1318,9 +1317,9 @@ body.lit-gold {
     <h3>Pré-visualização do folheto</h3>
   </div>
   <div class="col text-right">
-    <button type="button" class="btn secondary small" id="exportPdfBtn">📄 Imprimir (navegador)</button>
-    <button type="button" class="btn primary small" id="exportDocxBtn">📥 Exportar DOCX</button>
-    <button type="button" class="btn primary small" id="exportPdfJsBtn">📥 Exportar PDF</button>
+    <button type="button" class="btn secondary small" id="exportPdfBtn">📄 Imprimir</button>
+    <button type="button" class="btn primary small" id="exportDocxBtn">📥 DOCX</button>
+    <button type="button" class="btn primary small" id="exportPdfJsBtn">📥 PDF</button>
   </div>
 </div>
 <div id="previewContainer">
