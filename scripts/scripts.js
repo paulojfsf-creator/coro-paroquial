@@ -699,64 +699,52 @@ function getFeastForDate(date) {
     titleEl.innerHTML = icon + ' Coro Paroquial São João Batista de Rio Caldo';
   }
 
-  // ==== Inicialização da navegação e tema (precisa do DOM) ====
-  document.addEventListener('DOMContentLoaded', function() {
-    // Navegação entre abas
-    document.querySelectorAll('.tabs button').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const tabId = btn.getAttribute('data-tab');
-        document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById(tabId).classList.add('active');
-      });
+  document.querySelectorAll('.tabs button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tabId = btn.getAttribute('data-tab');
+      document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(tabId).classList.add('active');
     });
-
-    // Sistema de tema claro/escuro
-    const themeToggleBtn = document.getElementById('themeToggleBtn');
-    if (!themeToggleBtn) return;
-    
-    function getAutoTheme() {
-      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const hour = new Date().getHours();
-      const isNight = (hour >= 20 || hour < 7);
-      return (prefersDark || isNight) ? 'dark' : 'light';
-    }
-    function applyThemeFromStorage() {
-      const stored = localStorage.getItem('coroTheme');
-      const effective = stored || getAutoTheme();
-      if (effective === 'dark') {
-        document.documentElement.classList.add('dark');
-        themeToggleBtn.innerHTML = '☀ Modo claro';
-      } else {
-        document.documentElement.classList.remove('dark');
-        themeToggleBtn.innerHTML = '🌙 Modo escuro';
-      }
-    }
-    themeToggleBtn.addEventListener('click', () => {
-      const isDark = !document.documentElement.classList.contains('dark');
-      document.documentElement.classList.toggle('dark', isDark);
-      localStorage.setItem('coroTheme', isDark ? 'dark' : 'light');
-      applyThemeFromStorage();
-    });
-    applyThemeFromStorage();
   });
 
-  // ---- Catálogo (Google Sheets + CSV manual) ----
-  const GOOGLE_SHEETS_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTv7BD5eoTpio0s2Vjb6YCuZNmjCyG_leoWxl6v-IkIMV-LiJZNmCwhqA9j68IESZQJiU-H3ri3_flR/pub?gid=1808635095&single=true&output=csv";
-  
-  // Variáveis serão inicializadas no DOMContentLoaded
-  let csvFileInput, loadCsvBtn, csvError, songsTableContainer, filterAuthor, filterTheme, songSearch;
-  
-  function initCatalogElements() {
-    csvFileInput = document.getElementById('csvFile');
-    loadCsvBtn = document.getElementById('loadCsvBtn');
-    csvError = document.getElementById('csvError');
-    songsTableContainer = document.getElementById('songsTableContainer');
-    filterAuthor = document.getElementById('filterAuthor');
-    filterTheme = document.getElementById('filterTheme');
-    songSearch = document.getElementById('songSearch');
+  const themeToggleBtn = document.getElementById('themeToggleBtn');
+  function getAutoTheme() {
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const hour = new Date().getHours();
+    const isNight = (hour >= 20 || hour < 7);
+    return (prefersDark || isNight) ? 'dark' : 'light';
   }
+  function applyThemeFromStorage() {
+    const stored = localStorage.getItem('coroTheme');
+    const effective = stored || getAutoTheme();
+    if (effective === 'dark') {
+      document.documentElement.classList.add('dark');
+      themeToggleBtn.innerHTML = '☀ Modo claro';
+    } else {
+      document.documentElement.classList.remove('dark');
+      themeToggleBtn.innerHTML = '🌙 Modo escuro';
+    }
+  }
+  themeToggleBtn.addEventListener('click', () => {
+    const isDark = !document.documentElement.classList.contains('dark');
+    document.documentElement.classList.toggle('dark', isDark);
+    localStorage.setItem('coroTheme', isDark ? 'dark' : 'light');
+    applyThemeFromStorage();
+  });
+  applyThemeFromStorage();
+
+  // ---- Catálogo (Google Sheets + CSV manual) ----
+  const csvFileInput = document.getElementById('csvFile');
+  const loadCsvBtn = document.getElementById('loadCsvBtn');
+  const csvError = document.getElementById('csvError');
+  const songsTableContainer = document.getElementById('songsTableContainer');
+  const filterAuthor = document.getElementById('filterAuthor');
+  const filterTheme = document.getElementById('filterTheme');
+  const songSearch = document.getElementById('songSearch');
+
+  const GOOGLE_SHEETS_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTv7BD5eoTpio0s2Vjb6YCuZNmjCyG_leoWxl6v-IkIMV-LiJZNmCwhqA9j68IESZQJiU-H3ri3_flR/pub?gid=1808635095&single=true&output=csv";
 
   function parseCsvResults(data) {
     songs = data || [];
@@ -766,10 +754,6 @@ function getFeastForDate(date) {
   }
 
   function loadCsvFromGoogleSheets(done) {
-    if (!songsTableContainer) {
-      console.warn('songsTableContainer não encontrado');
-      return;
-    }
     Papa.parse(GOOGLE_SHEETS_CSV, {
       download: true,
       header: true,
@@ -794,15 +778,14 @@ function getFeastForDate(date) {
   }
 
   function renderSongsTable() {
-    if (!songsTableContainer) return;
     if (!songs.length) {
       songsTableContainer.classList.add('muted');
       songsTableContainer.innerHTML = 'Sem dados de catálogo para mostrar.';
       return;
     }
-    const authorVal = filterAuthor ? filterAuthor.value : '';
-    const themeVal = filterTheme ? filterTheme.value : '';
-    const searchVal = songSearch ? (songSearch.value || '').toLowerCase() : '';
+    const authorVal = filterAuthor.value;
+    const themeVal = filterTheme.value;
+    const searchVal = (songSearch.value || '').toLowerCase();
     const filtered = songs.filter(song => {
       const autor = song.Autor || song.autor || '';
       const tema = song.Tema || song.tema || '';
@@ -850,41 +833,36 @@ function getFeastForDate(date) {
     filterTheme.innerHTML = '<option value="">Todos</option>' + Array.from(temas).sort().map(t => '<option>' + t + '</option>').join('');
   }
 
-  function initCatalogListeners() {
-    if (!loadCsvBtn || !filterAuthor || !filterTheme || !songSearch) return;
-    
-    loadCsvBtn.addEventListener('click', () => {
-      if (!csvError || !csvFileInput) return;
-      csvError.style.display = 'none';
-      if (!csvFileInput.files || !csvFileInput.files.length) {
-        csvError.innerHTML = 'Escolhe um ficheiro CSV.';
-        csvError.style.display = 'block';
-        return;
-      }
-      const file = csvFileInput.files[0];
-      Papa.parse(file, {
-        header: true,
-        skipEmptyLines: "greedy",
-        complete: (results) => {
-          try {
-            parseCsvResults(results.data);
-            showToast('CSV carregado com sucesso.', 'success');
-          } catch (err) {
-            csvError.innerHTML = 'Erro ao processar o CSV.';
-            csvError.style.display = 'block';
-          }
-        },
-        error: () => {
-          csvError.innerHTML = 'Erro ao ler o ficheiro CSV.';
+  loadCsvBtn.addEventListener('click', () => {
+    csvError.style.display = 'none';
+    if (!csvFileInput.files || !csvFileInput.files.length) {
+      csvError.innerHTML = 'Escolhe um ficheiro CSV.';
+      csvError.style.display = 'block';
+      return;
+    }
+    const file = csvFileInput.files[0];
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: "greedy",
+      complete: (results) => {
+        try {
+          parseCsvResults(results.data);
+          showToast('CSV carregado com sucesso.', 'success');
+        } catch (err) {
+          csvError.innerHTML = 'Erro ao processar o CSV.';
           csvError.style.display = 'block';
         }
-      });
+      },
+      error: () => {
+        csvError.innerHTML = 'Erro ao ler o ficheiro CSV.';
+        csvError.style.display = 'block';
+      }
     });
+  });
 
-    filterAuthor.addEventListener('change', renderSongsTable);
-    filterTheme.addEventListener('change', renderSongsTable);
-    songSearch.addEventListener('input', renderSongsTable);
-  }
+  filterAuthor.addEventListener('change', renderSongsTable);
+  filterTheme.addEventListener('change', renderSongsTable);
+  songSearch.addEventListener('input', renderSongsTable);
 
   function populateSongDropdowns() {
     const titles = Array.from(new Set(songs.map(s => s.Título || s.Titulo || s.titulo).filter(Boolean))).sort();
@@ -1127,7 +1105,7 @@ function loadHistory() {
     }
     let html = '<table><thead><tr><th>Data</th><th>Título</th><th>Tempo / Ciclo</th><th>Ações</th></tr></thead><tbody>';
     history.slice().sort((a, b) => (b.date || '').localeCompare(a.date || '')).forEach((rec, idx) => {
-      // Encontrar índice original (não ordenado)
+      // Encontrar índice original no array não-ordenado
       const originalIdx = history.findIndex(h => h.date === rec.date && h.title === rec.title);
       html += '<tr>' +
         '<td>' + (rec.date || '—') + '</td>' +
@@ -1135,7 +1113,7 @@ function loadHistory() {
         '<td>' + (rec.season || '—') + ' / ' + (rec.cycle || '—') + '</td>' +
         '<td style="display:flex;gap:0.5rem;">' +
           '<button type="button" class="btn secondary small" data-hist-idx="' + originalIdx + '">Carregar</button>' +
-          '<button type="button" class="btn small" style="background:#dc2626;" data-hist-del="' + originalIdx + '">Eliminar</button>' +
+          '<button type="button" class="btn small" style="background:#dc2626;color:white;" data-hist-del="' + originalIdx + '">Eliminar</button>' +
         '</td>' +
       '</tr>';
     });
@@ -2366,16 +2344,12 @@ function setupProgramButtons() {
 }
 
 function init() {
-    // Inicializar elementos do catálogo
-    initCatalogElements();
-    initCatalogListeners();
-    
     loadHistory();
     renderHistory();
     loadCsvFromGoogleSheets();
     populateSongDropdowns();
     
-    // Inicializar data com hoje se não houver
+    // Inicializar data com hoje se estiver vazia
     const dateInput = document.getElementById('date');
     if (dateInput && !dateInput.value) {
       const today = new Date();
@@ -2384,7 +2358,7 @@ function init() {
       const day = String(today.getDate()).padStart(2, '0');
       dateInput.value = `${year}-${month}-${day}`;
       
-      // Atualizar campos litúrgicos
+      // Atualizar informação litúrgica
       const info = getLiturgicalInfo(today);
       const cycleDisplay = document.getElementById('cycleDisplay');
       if (cycleDisplay) {
@@ -2402,6 +2376,7 @@ function init() {
     updatePreview();
     refreshRehearsalPrograms();
     setupProgramButtons();
+
 
     // Dashboard inicial
     updateDashboard();
@@ -2915,360 +2890,3 @@ window.showUseDropdown = function(btn, partLabels, titulo){
     closeBtn.onclick = function() { m.remove(); };
   }
 };
-
-// ========== SISTEMA DE SUGESTÕES INTELIGENTES V24 ==========
-
-/**
- * Calcula um score para um cântico baseado no contexto litúrgico
- * @param {Object} song - Objeto do cântico do catálogo
- * @param {String} partId - ID da parte do programa (entrada, comunhao, etc)
- * @param {Object} litInfo - Informação litúrgica da data (season, color, cycle, etc)
- * @returns {Number} - Score de adequação (0-100+)
- */
-function scoreSongForContext(song, partId, litInfo) {
-  let score = 0;
-  
-  if (!song || !litInfo) return 0;
-  
-  const titulo = (song.Título || song.titulo || '').toLowerCase();
-  const secao = (song.Secção || song.secao || song.section || '').toLowerCase();
-  const tempo = (song.Tempo || song.tempo || '').toLowerCase();
-  const tags = (song.Tags || song.tags || '').toLowerCase();
-  const season = (litInfo.season || '').toLowerCase();
-  const color = (litInfo.color || '').toLowerCase();
-  
-  // 1. Adequação da secção (peso alto)
-  const partLabel = PROGRAM_PARTS.find(p => p.id === partId)?.label?.toLowerCase() || '';
-  if (secao.includes(partLabel)) {
-    score += 40;
-  } else if (secao.includes('entrada') && partId === 'entrada') {
-    score += 40;
-  } else if (secao.includes('comunhão') && partId === 'comunhao') {
-    score += 40;
-  } else if (secao.includes('ofertório') && partId === 'ofertorio') {
-    score += 40;
-  } else if (secao.includes('final') && partId === 'final') {
-    score += 40;
-  } else if (secao.includes('aclamação') && partId === 'aclamacao') {
-    score += 40;
-  } else if (secao.includes('salmo') && partId === 'salmo') {
-    score += 40;
-  } else if (secao.includes('glória') && partId === 'gloria') {
-    score += 40;
-  } else if (secao.includes('santo') && partId === 'santo') {
-    score += 40;
-  } else if (secao.includes('cordeiro') && partId === 'cordeiro') {
-    score += 40;
-  } else if (secao.includes('pai nosso') && partId === 'paiNosso') {
-    score += 40;
-  } else if (secao.includes('paz') && partId === 'paz') {
-    score += 40;
-  } else if (secao.includes('penitencial') && partId === 'atoPenitencial') {
-    score += 40;
-  } else if (secao.includes('graças') && partId === 'acaoGracas') {
-    score += 40;
-  }
-  
-  // 2. Adequação ao tempo litúrgico (peso médio-alto)
-  if (season) {
-    if (tempo.includes(season) || tags.includes(season)) {
-      score += 25;
-    }
-    // Casos especiais
-    if (season === 'advento' && (tempo.includes('advento') || tags.includes('advento'))) {
-      score += 25;
-    }
-    if (season === 'natal' && (tempo.includes('natal') || tags.includes('natal'))) {
-      score += 25;
-    }
-    if (season === 'quaresma' && (tempo.includes('quaresma') || tags.includes('quaresma'))) {
-      score += 25;
-    }
-    if (season === 'páscoa' && (tempo.includes('páscoa') || tempo.includes('pascoa') || tags.includes('páscoa') || tags.includes('pascoa'))) {
-      score += 25;
-    }
-    if (season === 'tempo comum' && (tempo.includes('comum') || tags.includes('comum'))) {
-      score += 10;
-    }
-  }
-  
-  // 3. Adequação à cor litúrgica
-  if (color) {
-    if (tags.includes(color)) {
-      score += 10;
-    }
-  }
-  
-  // 4. Palavras-chave específicas por tempo
-  if (season === 'páscoa' || season === 'pascoa') {
-    if (titulo.includes('aleluia') || tags.includes('aleluia')) {
-      score += 15;
-    }
-    if (titulo.includes('ressurreição') || titulo.includes('ressurreicao') || tags.includes('ressurreição')) {
-      score += 10;
-    }
-  }
-  
-  if (season === 'natal') {
-    if (titulo.includes('natal') || titulo.includes('noite') || titulo.includes('belém')) {
-      score += 10;
-    }
-  }
-  
-  if (season === 'quaresma') {
-    if (titulo.includes('quaresma') || titulo.includes('conversão') || titulo.includes('conversao')) {
-      score += 10;
-    }
-  }
-  
-  // 5. Penalização por uso recente
-  const lastUsage = getLastUsageForTitle(song.Título || song.titulo);
-  if (lastUsage && lastUsage.date) {
-    const daysSince = getDaysSince(lastUsage.date);
-    if (daysSince < 7) {
-      score -= 30; // Usado há menos de 1 semana
-    } else if (daysSince < 30) {
-      score -= 15; // Usado há menos de 1 mês
-    } else if (daysSince < 90) {
-      score -= 5; // Usado há menos de 3 meses
-    }
-  }
-  
-  // 6. Bónus pequeno para cânticos mais conhecidos (opcional)
-  // Pode ser baseado em frequência de uso histórica, popularidade, etc.
-  
-  return Math.max(0, score); // Score nunca negativo
-}
-
-/**
- * Calcula dias desde uma data
- */
-function getDaysSince(dateStr) {
-  if (!dateStr) return 999;
-  const today = new Date();
-  const [y, m, d] = dateStr.split('-').map(v => parseInt(v, 10));
-  if (!y || !m || !d) return 999;
-  const dt = new Date(y, m - 1, d);
-  const diffMs = today.getTime() - dt.getTime();
-  return Math.round(diffMs / (1000 * 60 * 60 * 24));
-}
-
-/**
- * Constrói sugestões para cada parte do programa
- * @param {Object} litInfo - Informação litúrgica da data
- * @returns {Object} - Objeto com sugestões por parte {partId: [{song, score}, ...]}
- */
-function buildSuggestionsForDay(litInfo) {
-  const suggestions = {};
-  
-  if (!songs || songs.length === 0) {
-    return suggestions;
-  }
-  
-  PROGRAM_PARTS.forEach(part => {
-    const scored = songs.map(song => ({
-      song: song,
-      score: scoreSongForContext(song, part.id, litInfo)
-    }))
-    .filter(item => item.score > 0) // Só cânticos com alguma relevância
-    .sort((a, b) => b.score - a.score); // Ordena por score decrescente
-    
-    // Pega os top 3
-    suggestions[part.id] = scored.slice(0, 3);
-  });
-  
-  return suggestions;
-}
-
-/**
- * Renderiza a interface de sugestões
- */
-function renderDailySuggestions() {
-  const dateInput = document.getElementById('date');
-  if (!dateInput || !dateInput.value) {
-    document.getElementById('suggestionsContainer').innerHTML = '<p class="muted">Seleciona uma data no Programa para ver sugestões.</p>';
-    return;
-  }
-  
-  const date = dateInput.value;
-  const litInfo = getLiturgicalInfo(date);
-  const displayTitle = buildDisplayLiturgicalTitle(date, litInfo);
-  
-  // Atualiza cabeçalho litúrgico
-  document.getElementById('suggestionsDate').textContent = formatDate(date);
-  document.getElementById('suggestionsTitle').textContent = displayTitle || '—';
-  document.getElementById('suggestionsSeason').textContent = capitalizeFirst(litInfo.season || '—');
-  document.getElementById('suggestionsColor').textContent = capitalizeFirst(litInfo.color || '—');
-  document.getElementById('suggestionsCycle').textContent = litInfo.cycle || '—';
-  
-  // Constrói sugestões
-  const allSuggestions = buildSuggestionsForDay(litInfo);
-  
-  let html = '';
-  
-  PROGRAM_PARTS.forEach(part => {
-    const partSuggestions = allSuggestions[part.id] || [];
-    
-    if (partSuggestions.length === 0) {
-      return; // Não mostra partes sem sugestões
-    }
-    
-    html += `<div class="suggestions-part">`;
-    html += `<h3>${part.icon} ${part.label}</h3>`;
-    html += `<div class="suggestions-list">`;
-    
-    partSuggestions.forEach(item => {
-      const song = item.song;
-      const score = item.score;
-      const titulo = song.Título || song.titulo || 'Sem título';
-      const autor = song.Autor || song.autor || '';
-      const secao = song.Secção || song.secao || '';
-      const tempo = song.Tempo || song.tempo || '';
-      
-      // Verifica uso recente
-      const lastUsage = getLastUsageForTitle(titulo);
-      let usageText = '';
-      let usageClass = '';
-      if (lastUsage && lastUsage.date) {
-        const recencyText = describeRecency(lastUsage.date);
-        const daysSince = getDaysSince(lastUsage.date);
-        usageText = recencyText;
-        usageClass = daysSince < 30 ? 'recent' : '';
-      }
-      
-      html += `<div class="suggestion-card">`;
-      html += `<div class="suggestion-info">`;
-      html += `<div class="suggestion-title">${escapeHtml(titulo)}</div>`;
-      html += `<div class="suggestion-meta">`;
-      if (autor) html += `<span>🎵 ${escapeHtml(autor)}</span>`;
-      if (secao) html += `<span>📂 ${escapeHtml(secao)}</span>`;
-      if (tempo) html += `<span>📅 ${escapeHtml(tempo)}</span>`;
-      html += `<span class="suggestion-score">Score: ${score}</span>`;
-      if (usageText) html += `<span class="suggestion-usage ${usageClass}">${usageText}</span>`;
-      html += `</div>`;
-      html += `</div>`;
-      html += `<div class="suggestion-actions">`;
-      html += `<button type="button" class="btn small" onclick="useSuggestionInProgram('${escapeHtml(titulo)}', '${part.id}', '${date}')">Usar</button>`;
-      
-      // Botão Ver letra (se existir)
-      const letra = song.Letra || song.letra || '';
-      if (letra && letra.trim()) {
-        html += `<button type="button" class="btn small secondary" onclick="viewSongLyrics('${escapeHtml(titulo)}', ${JSON.stringify(letra).replace(/'/g, "&#39;")})">Ver letra</button>`;
-      }
-      
-      html += `</div>`;
-      html += `</div>`;
-    });
-    
-    html += `</div>`;
-    html += `</div>`;
-  });
-  
-  if (html === '') {
-    html = '<p class="muted">Não foram encontradas sugestões adequadas para esta data. Tenta atualizar o catálogo ou ajustar as tags dos cânticos.</p>';
-  }
-  
-  document.getElementById('suggestionsContainer').innerHTML = html;
-}
-
-/**
- * Usa uma sugestão no programa
- */
-window.useSuggestionInProgram = function(titulo, partId, date) {
-  const partField = document.getElementById(partId);
-  if (partField) {
-    partField.value = titulo;
-    partField.dispatchEvent(new Event('change'));
-    
-    // Regista uso
-    const partLabel = PROGRAM_PARTS.find(p => p.id === partId)?.label || '';
-    if (window.recordSongUsage) {
-      window.recordSongUsage(titulo, partLabel, date);
-    }
-    
-    showToast('✓ "' + titulo + '" adicionado a ' + partLabel, 'success');
-    
-    // Opcional: mudar para aba Programa
-    // switchTab('tab-programa');
-  }
-};
-
-/**
- * Mostra letra de um cântico (modal simples)
- */
-window.viewSongLyrics = function(titulo, letra) {
-  const modal = document.createElement('div');
-  modal.className = 'modal-backdrop';
-  modal.innerHTML = `
-    <div class="modal">
-      <h3>${escapeHtml(titulo)}</h3>
-      <div style="max-height: 400px; overflow-y: auto; white-space: pre-wrap; font-family: monospace; font-size: 0.85rem; background: var(--bg-soft); padding: 0.75rem; border-radius: 0.5rem;">
-${escapeHtml(letra)}
-      </div>
-      <div class="modal-actions">
-        <button type="button" class="btn secondary" onclick="this.closest('.modal-backdrop').remove()">Fechar</button>
-      </div>
-    </div>
-  `;
-  document.body.appendChild(modal);
-  
-  // Fechar ao clicar fora
-  modal.addEventListener('click', function(e) {
-    if (e.target === modal) {
-      modal.remove();
-    }
-  });
-};
-
-/**
- * Utilitários
- */
-function formatDate(dateStr) {
-  if (!dateStr) return '';
-  const [y, m, d] = dateStr.split('-');
-  return `${d}/${m}/${y}`;
-}
-
-function capitalizeFirst(str) {
-  if (!str) return '';
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-function escapeHtml(text) {
-  if (!text) return '';
-  const map = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#039;'
-  };
-  return String(text).replace(/[&<>"']/g, m => map[m]);
-}
-
-// ========== INICIALIZAÇÃO DAS SUGESTÕES ==========
-
-// Atualiza sugestões quando a data muda
-document.addEventListener('DOMContentLoaded', function() {
-  const dateInput = document.getElementById('date');
-  if (dateInput) {
-    dateInput.addEventListener('change', function() {
-      // Só atualiza se estivermos na aba de sugestões ou se for explicitamente pedido
-      const suggestionsTab = document.getElementById('tab-sugestoes');
-      if (suggestionsTab && !suggestionsTab.classList.contains('active')) {
-        // Não atualiza automaticamente se não estiver na aba
-        return;
-      }
-      renderDailySuggestions();
-    });
-  }
-  
-  // Listener para quando mudar para aba Sugestões
-  const suggestionsTabBtn = document.querySelector('[data-tab="tab-sugestoes"]');
-  if (suggestionsTabBtn) {
-    suggestionsTabBtn.addEventListener('click', function() {
-      // Pequeno delay para garantir que a aba está visível
-      setTimeout(renderDailySuggestions, 100);
-    });
-  }
-});

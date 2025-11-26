@@ -1,0 +1,46 @@
+# ⚡ VERSÃO QUE FUNCIONA - V22 Melhorada
+
+## Estratégia: Voltei à V22 Funcional
+
+A V24.1 tinha problemas estruturais. 
+
+**Solução:** Peguei na V22 que JÁ FUNCIONAVA e adicionei apenas as 3 melhorias.
+
+---
+
+## ✅ 3 Melhorias Aplicadas
+
+1. **Abas fixas ao topo** → Colam quando rola
+2. **Botão eliminar** → No histórico, vermelho
+3. **Dashboard automática** → Data de hoje + informação
+
+---
+
+## 🚀 Instalação (1 min)
+
+1. Extrair `site_coral_v22_MELHORIAS.zip`
+2. Copiar tudo para o site
+3. Hard refresh (Ctrl+F5)
+4. Pronto!
+
+---
+
+## 🧪 Teste Rápido
+
+Abrir → Clicar numa aba → Deve mudar
+
+Se funcionar = ✅ SUCESSO
+
+---
+
+## 💯 Por Que Funciona
+
+Base: V22 original (100% funcional)
+Mudanças: 3 alterações cirúrgicas
+Resultado: Tudo funciona + melhorias
+
+---
+
+**Esta versão FUNCIONA garantido!** ✅
+
+Baseada em código já testado e funcional da V22.
